@@ -335,8 +335,12 @@ module RubyPicasa
     has_one :point, RubyPicasa::Photo::Point, 'gml:Point'
     has_one :author, Author, 'author'
     has_one :license, RubyPicasa::Photo::License, 'gphoto:license'
-
+    has_many :entries, :Comment, 'entry'
   end
 
+  class Comment < Base
+    attributes :id, :title, :content
+    has_one :author, Author, 'author'
+  end
 end
 

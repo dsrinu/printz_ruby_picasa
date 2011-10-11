@@ -141,9 +141,10 @@ class Picasa
           path += ["user", CGI.escape(args[:user_id] || 'default')]
         end
         path += ['albumid', CGI.escape(args[:album_id])] if args[:album_id]
+        path += ['photoid', CGI.escape(args[:photo_id])] if args[:photo_id]
         path = path.join('/')
       end
-      options['kind'] = 'photo' if args[:recent_photos] or args[:album_id]
+      options['kind'] = 'photo' if args[:recent_photos] or (args[:album_id] && !args[:photo_id])
       if args[:thumbsize] and not args[:thumbsize].split(/,/).all? { |s| RubyPicasa::Photo::VALID.include?(s) }
         raise RubyPicasa::PicasaError, 'Invalid thumbsize.'
       end
@@ -219,6 +220,15 @@ class Picasa
   # include all photos. If you pass an entry url, it will not include photos.
   def album(album_id_or_url, options = {})
     options = make_options(:album_id, album_id_or_url, options)
+    get(options)
+  end
+  
+  # Retrieve a RubyPicasa::Comment record.
+  def comments(user_id, photo_entry, options = {})
+    options[:user_id] = user_id
+    options[:album_id] = photo_entry.albumid.to_s
+    options[:photo_id] = photo_entry.id.to_s
+    options[:kind] = 'comment'
     get(options)
   end
 
@@ -360,7 +370,7 @@ class Picasa
           RubyPicasa::Search.new(xml, self)
         else
           if feed_href && (feed_href.starts_with? 'http://picasaweb.google.com/data/feed/api/all')
-              RubyPicasa::Search.new(xml, self)
+            RubyPicasa::Search.new(xml, self)
           else
             RubyPicasa::Photo.new(xml, self)
           end
