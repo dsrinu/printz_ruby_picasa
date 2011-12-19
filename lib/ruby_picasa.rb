@@ -264,7 +264,8 @@ class Picasa
   # Returns a RubyPicasa::Album object.
   def album_by_title(title, options = {})
     if a = user.albums.find { |a| title === a.title }
-      a.load options
+      a
+      #a.load options
     end
   end
 
